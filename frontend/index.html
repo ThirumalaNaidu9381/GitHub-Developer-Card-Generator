@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Dev Card Generator</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <!-- React & Babel -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --card-bg: #161b22;
+            --border-color: #30363d;
+            --text-main: #c9d1d9;
+            --text-muted: #8b949e;
+            --accent: #238636;
+            --accent-hover: #2ea043;
+            --error: #f85149;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        #root {
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .container {
+            text-align: center;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        h1 {
+            font-weight: 800;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+            background: linear-gradient(to right, #fff, #8b949e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p.subheading {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 12px;
+            background: var(--card-bg);
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            margin-bottom: 2rem;
+            transition: border-color 0.3s;
+        }
+
+        .input-group:focus-within {
+            border-color: var(--accent);
+        }
+
+        input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #fff;
+            padding: 12px 16px;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        button.generate-btn {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        button.generate-btn:hover {
+            background-color: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(35, 134, 54, 0.4);
+        }
+
+        button.generate-btn:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* Result Area */
+        .result-container {
+            margin-top: 2rem;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        .card-frame {
+            width: 100%;
+            height: 620px;
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            background: #000;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+
+        .action-bar {
+            margin-top: 1.5rem;
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+        }
+
+        .secondary-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .secondary-btn:hover {
+            background: #21262d;
+            border-color: #8b949e;
+        }
+
+        /* Loading Skeleton */
+        .skeleton {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            height: 600px;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .skeleton-circle {
+            width: 80px;
+            height: 80px;
+            background: #21262d;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        .skeleton-line {
+            height: 20px;
+            background: #21262d;
+            border-radius: 4px;
+            animation: pulse 1.5s infinite;
+        }
+
+        .skeleton-line.short { width: 40%; }
+        .skeleton-line.med { width: 70%; }
+        .skeleton-line.long { width: 100%; }
+
+        @keyframes pulse {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; }
+            100% { opacity: 0.5; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .error-msg {
+            color: var(--error);
+            background: rgba(248, 81, 73, 0.1);
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            border: 1px solid rgba(248, 81, 73, 0.2);
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            h1 { font-size: 1.8rem; }
+            .input-group { flex-direction: column; padding: 12px; }
+            button.generate-btn { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        function App() {
+            const [username, setUsername] = useState('');
+            const [loading, setLoading] = useState(false);
+            const [cardUrl, setCardUrl] = useState('');
+            const [error, setError] = useState('');
+            const [copyText, setCopyText] = useState('Copy Link');
+
+            // Dynamic backend URL for single-service deployment
+            const BACKEND_BASE_URL = window.location.origin;
+
+            const handleGenerate = async (e) => {
+                if (e) e.preventDefault();
+                if (!username.trim()) return;
+
+                setLoading(true);
+                setError('');
+                setCardUrl('');
+                setCopyText('Copy Link');
+
+                try {
+                    const response = await fetch(`${BACKEND_BASE_URL}/generate`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username: username.trim() })
+                    });
+
+                    if (!response.ok) {
+                        const errData = await response.json();
+                        throw new Error(errData.detail || 'Failed to generate card');
+                    }
+
+                    const result = await response.json();
+                    if (result.status === 'success') {
+                        // Ensure we have a full URL
+                        const finalUrl = result.data.card_url.startsWith('http') 
+                            ? result.data.card_url 
+                            : `${BACKEND_BASE_URL}${result.data.card_url}`;
+                        setCardUrl(finalUrl);
+                    }
+                } catch (err) {
+                    setError(err.message || 'Connection lost. Is the backend running?');
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            const handleCopy = () => {
+                navigator.clipboard.writeText(cardUrl);
+                setCopyText('Copied!');
+                setTimeout(() => setCopyText('Copy Link'), 2000);
+            };
+
+            return (
+                <div className="container">
+                    <h1>GitHub Dev Card Generator</h1>
+                    <p className="subheading">Enter any public GitHub username</p>
+
+                    <form onSubmit={handleGenerate} className="input-group">
+                        <input 
+                            type="text" 
+                            placeholder="e.g. torvalds" 
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
+                            disabled={loading}
+                            spellCheck="false"
+                        />
+                        <button type="submit" className="generate-btn" disabled={loading || !username.trim()}>
+                            {loading ? 'Generating...' : 'Generate Card'}
+                        </button>
+                    </form>
+
+                    {error && <div className="error-msg">{error}</div>}
+
+                    {loading && (
+                        <div className="skeleton">
+                            <div className="skeleton-circle"></div>
+                            <div className="skeleton-line long"></div>
+                            <div className="skeleton-line med"></div>
+                            <div style={{ marginTop: '20px' }}></div>
+                            <div className="skeleton-line short"></div>
+                            <div className="skeleton-line long"></div>
+                        </div>
+                    )}
+
+                    {cardUrl && !loading && (
+                        <div className="result-container">
+                            <iframe 
+                                src={cardUrl} 
+                                className="card-frame" 
+                                frameBorder="0"
+                                title="Developer Card"
+                            ></iframe>
+                            <div className="action-bar">
+                                <button className="secondary-btn" onClick={handleCopy}>
+                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                                        <path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z"></path>
+                                        <path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z"></path>
+                                    </svg>
+                                    {copyText}
+                                </button>
+                                <a href={cardUrl} target="_blank" className="secondary-btn" style={{ textDecoration: 'none' }}>
+                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                                        <path d="M3.75 2h3.5a.75.75 0 010 1.5h-3.5a.25.25 0 00-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 00.25-.25v-3.5a.75.75 0 011.5 0v3.5A1.75 1.75 0 0112.25 14h-8.5A1.75 1.75 0 012 12.25v-8.5C2 2.784 2.784 2 3.75 2z"></path>
+                                        <path d="M15 7.25a.75.75 0 01-1.5 0V4.56L8.28 9.78a.75.75 0 01-1.06-1.06l5.22-5.22H9.75a.75.75 0 010-1.5h5.25a.75.75 0 01.75.75v5.25z"></path>
+                                    </svg>
+                                    Open Fullscreen
+                                </a>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

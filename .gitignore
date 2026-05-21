@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+backend/venv/
+.venv/
+
+# Environment files
+.env
+.env.*
+
+# IDE and OS files
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Build outputs
+*.egg-info/
+*.dist-info/
+*.so
+*.dylib
+*.pyd
