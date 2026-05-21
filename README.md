@@ -162,6 +162,10 @@ Backend dependencies are defined in `backend/requirements.txt` and include:
 
 ---
 
-## License
+## Output
 
-No license is currently defined in this repository. Add a `LICENSE` file if you want to clarify reuse terms.
+<img width="988" height="298" alt="image" src="https://github.com/user-attachments/assets/292800f5-71ae-4408-a599-1809a488f8d7" />
+
+<img width="757" height="712" alt="image" src="https://github.com/user-attachments/assets/651421c5-c922-4b56-9eea-ef728d543c84" />
+
+
